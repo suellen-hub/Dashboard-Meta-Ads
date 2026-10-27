@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Meta Ads · Connectabil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+:root{
+  --navy:#150F29;--green:#07C86F;--purple:#610DAB;
+  --bg:#F6F5FA;--panel:#FFFFFF;--ink:#1E1933;--muted:#5E5873;--line:#E3E0EC;--row:#FAF9FD;
+  --c1:#610DAB;--c2:#07C86F;--c3:#8B84A3;--bad:#D6336C;--warn:#B7791F;--good:#05945A;
+  --grid:#ECEAF3;--tip:#FFFFFF;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#110C21;--panel:#1A1430;--ink:#ECE9F5;--muted:#A7A0BD;--line:#2E2748;--row:#1E1836;
+  --c1:#A86CF0;--c2:#2DDB8A;--c3:#6E6788;--bad:#FF6B9A;--warn:#F2C85B;--good:#2DDB8A;--grid:#272043;--tip:#221B3B;
+}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Instrument Sans",system-ui,sans-serif}
+.wrap{max-width:1240px;margin:0 auto;padding:0 16px 56px}
+.top{background:var(--navy);color:#fff}
+.top .wrap{padding-top:22px;padding-bottom:22px;display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
+h1{font:800 clamp(24px,3.4vw,34px)/1.05 "Bricolage Grotesque",sans-serif;margin:0;letter-spacing:-.02em}
+h1 b{color:var(--green)}
+.upd{font-size:13px;color:#B7B0CF;margin-top:6px}
+.ctrl{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+select{font:inherit;padding:7px 10px;border-radius:8px;border:1px solid #3E3566;background:#1E1838;color:#fff}
+.segs{display:flex;gap:4px;flex-wrap:wrap}
+.segs button{font:600 13px "Instrument Sans",sans-serif;padding:7px 12px;border-radius:999px;border:1px solid #3E3566;background:transparent;color:#fff;cursor:pointer}
+.segs button[aria-pressed="true"]{background:var(--green);border-color:var(--green);color:var(--navy)}
+.take{margin:22px 0 4px;font-size:17px;max-width:80ch;color:var(--muted)}
+.take b{color:var(--ink)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:12px;margin:18px 0}
+.tile{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.tile .k{font-size:13px;color:var(--muted)}
+.tile .v{font:600 28px/1.15 "Bricolage Grotesque",sans-serif;margin-top:4px;font-variant-numeric:tabular-nums}
+.tile .d{font-size:12.5px;margin-top:4px;color:var(--muted);min-height:1.2em}
+.up-good,.down-good{color:var(--good)} .up-bad,.down-bad{color:var(--bad)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:12px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:12px;position:relative;min-width:0}
+.card h2{font:700 17px "Bricolage Grotesque",sans-serif;margin:0}
+.card .note{font-size:13px;color:var(--muted);margin:4px 0 14px}
+.chart{min-height:230px;position:relative}
+.tip{position:absolute;pointer-events:none;background:var(--tip);border:1px solid var(--line);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.15);padding:6px 10px;font-size:12.5px;display:none;z-index:5;white-space:nowrap}
+.tip .h{color:var(--muted);margin-bottom:2px}
+.fun{display:flex;flex-direction:column;gap:8px;min-height:230px}
+.fs .lab{display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px}
+.fbar{height:22px;border-radius:6px;background:var(--row);border:1px solid var(--line)}
+.fbar i{display:block;height:100%;border-radius:6px}
+.drop{font-size:12.5px;color:var(--muted)}
+.tw{max-height:480px;overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+th{position:sticky;top:0;background:var(--panel);text-align:right;font-weight:600;color:var(--muted);padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap;cursor:pointer;user-select:none}
+th[aria-sort]::after{content:" ↓"} th[aria-sort="ascending"]::after{content:" ↑"}
+th:first-child,td:first-child{text-align:left}
+td{padding:8px;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}
+td:first-child{max-width:300px}
+td.t{text-align:left;color:var(--muted)}
+.pill{display:inline-block;font-size:11px;padding:1px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.pill.on{color:var(--good);border-color:currentColor}
+.flag{font-weight:600;color:var(--warn)} .flag.bad{color:var(--bad)}
+input[type=search]{font:inherit;font-size:13px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--ink);width:min(100%,280px);margin-bottom:10px}
+.foot{font-size:12.5px;color:var(--muted);line-height:1.55;max-width:90ch}
+</style>
+</head>
+<body>
+<div class="top"><div class="wrap">
+  <div>
+    <h1>Meta Ads · <b>Connectabil</b></h1>
+    <div class="upd" id="upd"></div>
+  </div>
+  <div class="ctrl">
+    <select id="periodo" aria-label="Período">
+      <option value="7">Últimos 7 dias</option>
+      <option value="30" selected>Últimos 30 dias</option>
+      <option value="mes">Este mês</option>
+      <option value="90">Últimos 90 dias</option>
+    </select>
+    <div class="segs" id="segs" role="group" aria-label="Público">
+      <button data-seg="Todos" aria-pressed="true">Todos</button>
+      <button data-seg="B2B" aria-pressed="false">B2B</button>
+      <button data-seg="B2C" aria-pressed="false">B2C</button>
+      <button data-seg="RDD e outras" aria-pressed="false">RDD e outras</button>
+    </div>
+  </div>
+</div></div>
+
+<div class="wrap">
+  <p class="take" id="take"></p>
+  <div class="tiles" id="tiles"></div>
+
+  <div class="grid">
+    <div class="card"><h2>Investimento e leads por semana</h2><p class="note">Barras: investimento. Linha: leads. Semanas começando na segunda.</p><div class="chart" id="ch-sem"></div><div class="tip" id="tip-sem"></div></div>
+    <div class="card"><h2>Funil do anúncio ao lead</h2><p class="note">Onde as pessoas param entre ver o anúncio e virar lead.</p><div class="fun" id="fun"></div></div>
+  </div>
+
+  <div class="card"><h2>Custo por lead por campanha</h2><p class="note">Só campanhas com lead no período. Tracejado: média do filtro. Em vermelho: mais de 1,5x a média.</p><div class="chart" id="ch-cpl"></div><div class="tip" id="tip-cpl"></div></div>
+
+  <div class="card"><h2>Campanhas</h2><p class="note">Clique no título da coluna para ordenar.</p>
+    <div class="tw"><table id="t-camp"><thead><tr>
+      <th data-f="campanha">Campanha</th><th data-f="status">Status</th><th data-f="investimento">Investido</th><th data-f="impressoes">Impressões</th><th data-f="cliques">Cliques no link</th><th data-f="ctr">CTR</th><th data-f="cpc">CPC</th><th data-f="leads">Leads</th><th data-f="cpl">Custo/lead</th><th data-f="conversas">Conversas</th>
+    </tr></thead><tbody></tbody></table></div>
+  </div>
+
+  <div class="card"><h2>Criativos</h2><p class="note">Cada anúncio somado em todos os conjuntos. Alerta: frequência média acima de 2,5 (público saturando) ou CTR abaixo de 0,8% com mais de 2 mil impressões (criativo fraco).</p>
+    <input type="search" id="busca" placeholder="Buscar anúncio ou campanha" aria-label="Buscar anúncio">
+    <div class="tw"><table id="t-cri"><thead><tr>
+      <th data-f="anuncio">Anúncio</th><th data-f="campanha">Campanha</th><th data-f="investimento">Investido</th><th data-f="ctr">CTR</th><th data-f="frequencia">Frequência</th><th data-f="leads">Leads</th><th data-f="cpl">Custo/lead</th><th data-f="alerta">Alerta</th>
+    </tr></thead><tbody></tbody></table></div>
+  </div>
+
+  <p class="foot">Dados das contas de anúncios da Connectabil no Meta Ads, extraídos pelo Windsor.ai e atualizados automaticamente uma vez por dia. O público é lido pelo nome da campanha ("[B2B]" e "[B2C" no nome; o resto entra em "RDD e outras"). Leads são os atribuídos pela Meta (formulários e eventos do site); para leads qualificados e vendas, use o RD Station. A comparação com o período anterior aparece nos filtros de 7 e 30 dias.</p>
+</div>
+
+<script>
+const DATA = /*__DATA__*/{"gerado_em":"","campanhas":[],"anuncios":[]}/*__END__*/;
+(() => {
+  const n = (v) => (v == null ? 0 : Number(v));
+  const seg = (c) => /\[B2B/i.test(c) ? 'B2B' : /\[B2C/i.test(c) ? 'B2C' : 'RDD e outras';
+  const camps = DATA.campanhas.map((r) => ({ ...r, spend: n(r.spend), impressions: n(r.impressions), link_clicks: n(r.link_clicks), lead: n(r.actions_lead), conv: n(r.actions_onsite_conversion_messaging_conversation_started_7d), seg: seg(r.campaign) }));
+  const ads = DATA.anuncios.map((r) => ({ ...r, spend: n(r.spend), impressions: n(r.impressions), link_clicks: n(r.link_clicks), lead: n(r.actions_lead), conv: n(r.actions_onsite_conversion_messaging_conversation_started_7d), frequency: n(r.frequency), seg: seg(r.campaign) }));
+
+  const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+  const brl0 = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+  const int = new Intl.NumberFormat('pt-BR');
+  const pct = new Intl.NumberFormat('pt-BR', { style: 'percent', minimumFractionDigits: 1, maximumFractionDigits: 2 });
+  const dec = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 });
+  const dfmt = (s) => s.slice(8, 10) + '/' + s.slice(5, 7);
+
+  const gerado = DATA.gerado_em ? new Date(DATA.gerado_em) : null;
+  document.getElementById('upd').textContent = gerado ? 'Atualizado em ' + gerado.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', dateStyle: 'short', timeStyle: 'short' }) : '';
+
+  const allDates = [...new Set(camps.map((r) => r.date))].sort();
+  const lastDate = DATA.ate || allDates[allDates.length - 1] || new Date().toISOString().slice(0, 10);
+  const addDays = (s, k) => { const d = new Date(s + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + k); return d.toISOString().slice(0, 10); };
+
+  const state = { periodo: '30', seg: 'Todos', sort: { 't-camp': ['investimento', -1], 't-cri': ['investimento', -1] } };
+
+  function ranges() {
+    if (state.periodo === 'mes') { const s = lastDate.slice(0, 8) + '01'; return { from: s, to: lastDate, prev: null, label: 'Neste mês' }; }
+    const k = Number(state.periodo);
+    const from = addDays(lastDate, -(k - 1));
+    const prev = k <= 30 ? { from: addDays(from, -k), to: addDays(from, -1) } : null;
+    return { from, to: lastDate, prev, label: 'Nos últimos ' + k + ' dias' };
+  }
+  const inSeg = (r) => state.seg === 'Todos' || r.seg === state.seg;
+  const inR = (r, a) => r.date >= a.from && r.date <= a.to;
+
+  function totals(rows) {
+    const t = rows.reduce((a, r) => { a.inv += r.spend; a.imp += r.impressions; a.cli += r.link_clicks; a.lead += r.lead; a.conv += r.conv; return a; }, { inv: 0, imp: 0, cli: 0, lead: 0, conv: 0 });
+    t.cpl = t.lead ? t.inv / t.lead : null; t.ctr = t.imp ? t.cli / t.imp : null; t.cpm = t.imp ? t.inv / t.imp * 1000 : null; t.cpc = t.cli ? t.inv / t.cli : null;
+    return t;
+  }
+
+  function byCampaign(rows) {
+    const m = new Map();
+    rows.forEach((r) => {
+      if (!m.has(r.campaign)) m.set(r.campaign, { campanha: r.campaign, seg: r.seg, status: r.campaign_status === 'ACTIVE' ? 'Ativa' : 'Pausada', rows: [] });
+      m.get(r.campaign).rows.push(r);
+    });
+    return [...m.values()].map((g) => { const t = totals(g.rows); return { campanha: g.campanha, seg: g.seg, status: g.status, investimento: t.inv, impressoes: t.imp, cliques: t.cli, ctr: t.ctr, cpc: t.cpc, leads: t.lead, cpl: t.cpl, conversas: t.conv }; });
+  }
+
+  function byAd(rows) {
+    const m = new Map();
+    rows.forEach((r) => {
+      const k = r.campaign + '|' + r.ad_name;
+      if (!m.has(k)) m.set(k, { anuncio: r.ad_name, campanha: r.campaign, inv: 0, imp: 0, cli: 0, lead: 0, fp: 0 });
+      const g = m.get(k); g.inv += r.spend; g.imp += r.impressions; g.cli += r.link_clicks; g.lead += r.lead; g.fp += r.frequency * r.impressions;
+    });
+    return [...m.values()].filter((g) => g.inv > 0).map((g) => {
+      const frequencia = g.imp ? g.fp / g.imp : null, ctr = g.imp ? g.cli / g.imp : null;
+      const alerta = frequencia != null && frequencia > 2.5 ? 'Frequência alta' : (ctr != null && ctr < 0.008 && g.imp > 2000 ? 'CTR baixo' : '');
+      return { anuncio: g.anuncio, campanha: g.campanha, investimento: g.inv, ctr, frequencia, leads: g.lead, cpl: g.lead ? g.inv / g.lead : null, alerta };
+    });
+  }
+
+  const tip = (el, ev, lines) => {
+    el.style.display = 'block'; el.replaceChildren();
+    lines.forEach((l, i) => { const d = document.createElement('div'); if (i === 0) d.className = 'h'; d.textContent = l; el.appendChild(d); });
+    const box = el.parentElement.getBoundingClientRect();
+    el.style.left = Math.max(8, Math.min(ev.clientX - box.left + 12, box.width - el.offsetWidth - 8)) + 'px';
+    el.style.top = (ev.clientY - box.top - 12) + 'px';
+  };
+
+  function drawTiles(t, p, R) {
+    const box = document.getElementById('tiles'); box.replaceChildren();
+    const defs = [
+      ['Investimento', t.inv, p && p.inv, brl0.format, null],
+      ['Leads', t.lead, p && p.lead, int.format, true],
+      ['Custo por lead', t.cpl, p && p.cpl, (v) => v == null ? '—' : brl.format(v), false],
+      ['Conversas iniciadas', t.conv, p && p.conv, int.format, true],
+      ['CTR do link', t.ctr, p && p.ctr, (v) => v == null ? '—' : pct.format(v), true],
+      ['CPM', t.cpm, p && p.cpm, (v) => v == null ? '—' : brl.format(v), false],
+    ];
+    defs.forEach(([k, v, pv, f, upGood]) => {
+      const el = document.createElement('div'); el.className = 'tile';
+      const a = document.createElement('div'); a.className = 'k'; a.textContent = k;
+      const b = document.createElement('div'); b.className = 'v'; b.textContent = f(v);
+      const c = document.createElement('div'); c.className = 'd';
+      if (R.prev && pv != null && v != null && pv !== 0) {
+        const ch = (v - pv) / Math.abs(pv);
+        const up = ch >= 0;
+        c.textContent = (up ? '+' : '−') + pct.format(Math.abs(ch)) + ' vs. período anterior';
+        if (upGood !== null) c.className = 'd ' + (up === upGood ? 'up-good' : 'up-bad');
+      } else c.textContent = R.prev ? 'sem base de comparação' : '';
+      el.append(a, b, c); box.appendChild(el);
+    });
+  }
+
+  function drawTake(t, camp, R) {
+    const p = document.getElementById('take'); p.replaceChildren();
+    const add = (s, bold) => { if (bold) { const b = document.createElement('b'); b.textContent = s; p.appendChild(b); } else p.appendChild(document.createTextNode(s)); };
+    add(R.label + (state.seg === 'Todos' ? ', ' : ', no público ' + state.seg + ', '));
+    add(brl0.format(t.inv), true); add(' investidos geraram '); add(int.format(t.lead), true); add(' leads');
+    if (t.cpl != null) { add(' a '); add(brl.format(t.cpl), true); add(' cada'); }
+    add('.');
+    const ok = camp.filter((c) => c.leads >= 3);
+    if (ok.length > 1) { const best = ok.reduce((a, b) => (a.cpl < b.cpl ? a : b)); add(' Menor custo por lead (3 leads ou mais): '); add(best.campanha, true); add(', a ' + brl.format(best.cpl) + '.'); }
+  }
+
+  function drawFunnel(t) {
+    const box = document.getElementById('fun'); box.replaceChildren();
+    const steps = [['Impressões', t.imp], ['Cliques no link', t.cli], ['Leads', t.lead]];
+    const max = steps[0][1] || 1;
+    steps.forEach(([lab, v], i) => {
+      if (i) { const d = document.createElement('div'); d.className = 'drop'; const pv = steps[i - 1][1]; d.textContent = pv ? '↓ ' + pct.format(v / pv) + ' seguem para a próxima etapa' : '↓'; box.appendChild(d); }
+      const s = document.createElement('div'); s.className = 'fs';
+      const l = document.createElement('div'); l.className = 'lab';
+      const a = document.createElement('span'); a.textContent = lab; const b = document.createElement('span'); b.textContent = int.format(v); l.append(a, b);
+      const bar = document.createElement('div'); bar.className = 'fbar'; const f = document.createElement('i');
+      f.style.width = (v > 0 ? Math.max(3, Math.log10(v + 1) / Math.log10(max + 1) * 100) : 0) + '%';
+      f.style.background = i === 2 ? 'var(--c2)' : 'var(--c1)'; bar.appendChild(f);
+      s.append(l, bar); box.appendChild(s);
+    });
+    const nt = document.createElement('div'); nt.className = 'drop'; nt.textContent = 'Barras em escala logarítmica, para as três etapas caberem na mesma régua.'; box.appendChild(nt);
+  }
+
+  function drawWeeks(rows) {
+    const el = document.getElementById('ch-sem'), tp = document.getElementById('tip-sem'); el.replaceChildren();
+    const monday = (s) => { const d = new Date(s + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() - (d.getUTCDay() + 6) % 7); return d.toISOString().slice(0, 10); };
+    const m = new Map();
+    rows.forEach((r) => { const w = monday(r.date); if (!m.has(w)) m.set(w, { w, inv: 0, lead: 0, conv: 0 }); const g = m.get(w); g.inv += r.spend; g.lead += r.lead; g.conv += r.conv; });
+    const data = [...m.values()].sort((a, b) => a.w.localeCompare(b.w));
+    if (!data.length) return;
+    const css = getComputedStyle(document.documentElement), C1 = css.getPropertyValue('--c1').trim(), C2 = css.getPropertyValue('--c2').trim();
+    const W = el.clientWidth || 600, H = 230, mg = { t: 12, r: 40, b: 26, l: 60 };
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+    const yL = d3.scaleLinear([0, d3.max(data, (d) => d.inv) || 1], [H - mg.b, mg.t]).nice();
+    const yR = d3.scaleLinear([0, d3.max(data, (d) => d.lead) || 1], [H - mg.b, mg.t]).nice();
+    const pr = svg.append('text').attr('font-size', 11).text(brl0.format(yL.domain()[1])); mg.l = Math.ceil(pr.node().getComputedTextLength()) + 10; pr.remove();
+    const x = d3.scaleBand(data.map((d) => d.w), [mg.l, W - mg.r]).padding(0.3);
+    const bw = Math.min(32, x.bandwidth()), cx = (d) => x(d.w) + bw / 2;
+    svg.append('g').selectAll('line').data(yL.ticks(4)).join('line').attr('x1', mg.l).attr('x2', W - mg.r).attr('y1', yL).attr('y2', yL).attr('stroke', 'var(--grid)');
+    svg.append('g').selectAll('text').data(yL.ticks(4)).join('text').attr('x', mg.l - 6).attr('y', yL).attr('dy', '.32em').attr('text-anchor', 'end').attr('font-size', 11).attr('fill', 'var(--muted)').text((d) => brl0.format(d));
+    svg.append('g').selectAll('text').data(yR.ticks(4)).join('text').attr('x', W - mg.r + 6).attr('y', yR).attr('dy', '.32em').attr('font-size', 11).attr('fill', C2).text((d) => int.format(d));
+    const step = Math.max(1, Math.ceil(data.length / Math.max(1, Math.floor((W - mg.l - mg.r) / 52))));
+    svg.append('g').selectAll('text').data(data.filter((d, i) => i % step === 0)).join('text').attr('x', cx).attr('y', H - 8).attr('text-anchor', 'middle').attr('font-size', 11).attr('fill', 'var(--muted)').text((d) => dfmt(d.w));
+    svg.append('g').selectAll('rect').data(data).join('rect').attr('x', (d) => x(d.w)).attr('width', bw).attr('y', (d) => yL(d.inv)).attr('height', (d) => Math.max(0, H - mg.b - yL(d.inv))).attr('rx', 4).attr('fill', C1).attr('opacity', .85);
+    svg.append('path').datum(data).attr('fill', 'none').attr('stroke', C2).attr('stroke-width', 2).attr('stroke-linejoin', 'round').attr('stroke-linecap', 'round').attr('d', d3.line().x(cx).y((d) => yR(d.lead)));
+    svg.append('g').selectAll('circle').data(data).join('circle').attr('cx', cx).attr('cy', (d) => yR(d.lead)).attr('r', 3).attr('fill', C2);
+    svg.append('g').selectAll('rect').data(data).join('rect').attr('x', (d) => x(d.w) - x.step() * x.paddingInner() / 2).attr('width', x.step()).attr('y', mg.t).attr('height', H - mg.t - mg.b).attr('fill', 'transparent')
+      .on('mousemove', (ev, d) => tip(tp, ev, ['Semana de ' + dfmt(d.w), 'Investimento: ' + brl.format(d.inv), 'Leads: ' + int.format(d.lead), 'Conversas: ' + int.format(d.conv)]))
+      .on('mouseleave', () => { tp.style.display = 'none'; });
+  }
+
+  function drawCpl(camp, avg) {
+    const el = document.getElementById('ch-cpl'), tp = document.getElementById('tip-cpl'); el.replaceChildren();
+    const data = camp.filter((c) => c.leads > 0).sort((a, b) => a.cpl - b.cpl);
+    if (!data.length) { el.style.minHeight = '60px'; const d = document.createElement('div'); d.className = 'drop'; d.textContent = 'Nenhuma campanha com lead neste filtro.'; el.appendChild(d); return; }
+    const css = getComputedStyle(document.documentElement), C1 = css.getPropertyValue('--c1').trim(), BAD = css.getPropertyValue('--bad').trim();
+    const W = el.clientWidth || 600, rh = 30, mg = { t: 8, r: 76, b: 8, l: 10 }, H = mg.t + mg.b + data.length * rh;
+    el.style.minHeight = H + 'px';
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+    const lab = (s) => s.length > 44 ? s.slice(0, 42) + '…' : s;
+    const pg = svg.append('g'); data.forEach((d) => pg.append('text').attr('font-size', 11).text(lab(d.campanha)));
+    mg.l = Math.min(W * .5, d3.max(pg.selectAll('text').nodes(), (nd) => nd.getComputedTextLength()) + 12); pg.remove();
+    const x = d3.scaleLinear([0, d3.max(data, (d) => d.cpl)], [mg.l, W - mg.r]).nice();
+    const y = d3.scaleBand(data.map((d) => d.campanha), [mg.t, H - mg.b]).padding(.28);
+    svg.append('g').selectAll('text').data(data).join('text').attr('x', mg.l - 8).attr('y', (d) => y(d.campanha) + y.bandwidth() / 2).attr('dy', '.32em').attr('text-anchor', 'end').attr('font-size', 11).attr('fill', 'var(--ink)').text((d) => lab(d.campanha));
+    svg.append('g').selectAll('rect').data(data).join('rect').attr('x', mg.l).attr('y', (d) => y(d.campanha)).attr('height', y.bandwidth()).attr('width', (d) => Math.max(2, x(d.cpl) - mg.l)).attr('rx', 4)
+      .attr('fill', (d) => avg != null && d.cpl > avg * 1.5 ? BAD : C1)
+      .on('mousemove', (ev, d) => tip(tp, ev, [d.campanha, 'Custo por lead: ' + brl.format(d.cpl), 'Leads: ' + int.format(d.leads), 'Investido: ' + brl.format(d.investimento)]))
+      .on('mouseleave', () => { tp.style.display = 'none'; });
+    svg.append('g').selectAll('text').data(data).join('text').attr('x', (d) => x(d.cpl) + 6).attr('y', (d) => y(d.campanha) + y.bandwidth() / 2).attr('dy', '.32em').attr('font-size', 11).attr('fill', 'var(--muted)').text((d) => brl.format(d.cpl));
+    if (avg != null) svg.append('line').attr('x1', x(avg)).attr('x2', x(avg)).attr('y1', mg.t - 4).attr('y2', H - mg.b).attr('stroke', 'var(--muted)').attr('stroke-dasharray', '4 3');
+  }
+
+  const sorter = (id) => (a, b) => {
+    const [f, dir] = state.sort[id]; const x = a[f], y = b[f];
+    if (x == null && y == null) return 0; if (x == null) return 1; if (y == null) return -1;
+    return (typeof x === 'number' ? x - y : String(x).localeCompare(String(y), 'pt-BR')) * dir;
+  };
+  function markSort(id) { document.querySelectorAll('#' + id + ' th').forEach((th) => { const [f, dir] = state.sort[id]; if (th.dataset.f === f) th.setAttribute('aria-sort', dir > 0 ? 'ascending' : 'descending'); else th.removeAttribute('aria-sort'); }); }
+
+  function drawCampTable(camp) {
+    const tb = document.querySelector('#t-camp tbody'); tb.replaceChildren(); markSort('t-camp');
+    camp.slice().sort(sorter('t-camp')).forEach((c) => {
+      const tr = document.createElement('tr');
+      [c.campanha, null, brl.format(c.investimento), int.format(c.impressoes), int.format(c.cliques), c.ctr == null ? '—' : pct.format(c.ctr), c.cpc == null ? '—' : brl.format(c.cpc), int.format(c.leads), c.cpl == null ? '—' : brl.format(c.cpl), int.format(c.conversas)].forEach((v, i) => {
+        const td = document.createElement('td');
+        if (i === 1) { const s = document.createElement('span'); s.className = 'pill' + (c.status === 'Ativa' ? ' on' : ''); s.textContent = c.status; td.appendChild(s); } else td.textContent = v;
+        tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+  }
+
+  function drawAdTable(rows) {
+    const tb = document.querySelector('#t-cri tbody'); tb.replaceChildren(); markSort('t-cri');
+    const q = document.getElementById('busca').value.trim().toLowerCase();
+    rows.filter((c) => !q || (c.anuncio + ' ' + c.campanha).toLowerCase().includes(q)).sort(sorter('t-cri')).forEach((c) => {
+      const tr = document.createElement('tr');
+      [c.anuncio, c.campanha, brl.format(c.investimento), c.ctr == null ? '—' : pct.format(c.ctr), c.frequencia == null ? '—' : dec.format(c.frequencia), int.format(c.leads), c.cpl == null ? '—' : brl.format(c.cpl), c.alerta].forEach((v, i) => {
+        const td = document.createElement('td'); if (i === 1) td.className = 't';
+        if (i === 7 && v) { const s = document.createElement('span'); s.className = 'flag' + (v === 'Frequência alta' ? ' bad' : ''); s.textContent = v; td.appendChild(s); } else td.textContent = v;
+        tr.appendChild(td);
+      });
+      tb.appendChild(tr);
+    });
+  }
+
+  function draw() {
+    const R = ranges();
+    const cur = camps.filter((r) => inSeg(r) && inR(r, R));
+    const prev = R.prev ? camps.filter((r) => inSeg(r) && inR(r, R.prev)) : null;
+    const t = totals(cur), p = prev && prev.length ? totals(prev) : null;
+    const camp = byCampaign(cur);
+    drawTiles(t, p, R); drawTake(t, camp, R); drawFunnel(t); drawWeeks(cur); drawCpl(camp, t.cpl); drawCampTable(camp);
+    drawAdTable(byAd(ads.filter((r) => inSeg(r) && inR(r, R))));
+    document.querySelectorAll('#segs button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.seg === state.seg)));
+  }
+
+  document.getElementById('periodo').addEventListener('change', (e) => { state.periodo = e.target.value; draw(); });
+  document.querySelectorAll('#segs button').forEach((b) => b.addEventListener('click', () => { state.seg = b.dataset.seg; draw(); }));
+  document.getElementById('busca').addEventListener('input', draw);
+  ['t-camp', 't-cri'].forEach((id) => document.querySelectorAll('#' + id + ' th').forEach((th) => th.addEventListener('click', () => {
+    const s = state.sort[id]; if (s[0] === th.dataset.f) s[1] *= -1; else { s[0] = th.dataset.f; s[1] = -1; } draw();
+  })));
+  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(draw, 150); });
+  draw();
+})();
+</script>
+</body>
+</html>
